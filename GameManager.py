@@ -1,6 +1,17 @@
 import pygame
+from enum import Enum
+
 from Elevator import elevator
 from Floor import Floor
+
+
+class STATUS_GAME(Enum):
+    START_GAME = 1
+    UPDATE_FLOORS_ELEVATOR = 2
+    PLAY = 3
+
+MARGIN = 80
+
 
 pygame.init()
 
@@ -14,63 +25,68 @@ def get_an_int(prompt):
     return number        
 
 
+
 num_of_floors = get_an_int("Please enter the number of floors requested: ")
 num_of_elevators = get_an_int("Please enter the number of elevators requested: ")
 
-screen_width = num_of_elevators * 71 + 150
+screen_width = num_of_elevators * 71 + 200
 screen_height = num_of_floors * 71
 background_color = (250, 250, 250)
 screen_size = (screen_width, screen_height)
+black_space = 7
 
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
-screen.fill((250, 250, 250))
+screen.fill(background_color)
 elevator_image = "elv (1).png"
 floor_image = "wall.png"
+button_image = "elevator_button (1).png"
 sound = "ding.mp3"
 
-elevators = []
+elevators = pygame.sprite.Group()
 floors = []
 
-for _ in range(num_of_elevators):
-    elevators.append(elevator(elevator_image, sound))
-for i in range(num_of_elevators):
-    elevators[i].draw(i + 1, screen, screen_height, 0)
-    pygame.display.flip()
-    
+
+
 for _ in range(num_of_floors):
-    floors.append(Floor(floor_image))
+    floors.append(Floor(floor_image, button_image))
 for i in range(num_of_floors):
     floors[i].draw(i, screen, screen_height)
-    pygame.display.flip()
-    
-    
-
-
-
-        
-        
-        
-                     
-
-#image = pygame.image.load("elv (1).png")
-#image_rect = image.get_rect()
-run = True
-#x = 152
-#y = num_of_floors * 71 - 65
-#for elevator in range(num_of_elevators):
-    #screen.blit(image, (x, y))
-    #x += 66
-#pygame.display.flip()
  
-print(screen)    
+
+floor_width = floors[0].image.get_width()
+
+for i in range(num_of_elevators):
+    new_elevator = elevator(i, elevator_image, sound)
+    elevators.add(new_elevator)
+    new_elevator.draw(i + 1, screen, screen_height, floor_width, MARGIN)
+# elevators.update()
+# elevators.draw(screen)
+    pygame.display.flip() 
+for elevator in elevators:
+    print(elevator.get_rect())
     
 
-#screen.blit(image, (150, 30))
-#pygame.display.flip()
 
+    
+
+    
+    
+
+    
+    
+
+run = True
+    
+i = 0
+print(screen)
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if 94 < mouse_pos[0] < 128 :
+                print((screen_height - mouse_pos[1]) // 71)
+    elevators.update()
+    
 pygame.quit()
